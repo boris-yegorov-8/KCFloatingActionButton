@@ -339,8 +339,8 @@ public class KCFloatingActionButton: UIView {
             for item in items {
                 if item.hidden == true { continue }
                 let itemPoint = item.convertPoint(point, fromView: self)
-                if CGRectContainsPoint(item.bounds, itemPoint) == true {
-                    return item.hitTest(itemPoint, withEvent: event)
+                if let itemView = item.hitTest(itemPoint, withEvent: event) {
+                    return itemView
                 }
             }
             

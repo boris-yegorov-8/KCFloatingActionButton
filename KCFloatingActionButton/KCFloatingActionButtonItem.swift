@@ -190,5 +190,18 @@ public class KCFloatingActionButtonItem: UIView {
             }
         }
     }
+    
+    public override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
+    
+        var frameOfText = bounds
+        frameOfText.origin.x -= CGRectGetWidth((_titleLabel?.bounds)!)
+        frameOfText.size.width += CGRectGetWidth((_titleLabel?.bounds)!)
+        
+        if !hidden &&  alpha > 0 && CGRectContainsPoint(frameOfText, point) {
+            return self
+        }
+        return super.hitTest(point, withEvent: event)
+    }
+    
 }
 
