@@ -9,20 +9,20 @@
 import UIKit
 
 /**
-    Floating Action Button Object's item.
-*/
+ Floating Action Button Object's item.
+ */
 public class KCFloatingActionButtonItem: UIView {
     
     // MARK: - Properties
     
     /**
-        This object's button size.
+    This object's button size.
     */
     public var size: CGFloat = 42
     
     /**
-        Button color.
-    */
+     Button color.
+     */
     public var buttonColor: UIColor = UIColor.whiteColor()
     
     /**
@@ -36,23 +36,26 @@ public class KCFloatingActionButtonItem: UIView {
     public var titleShadowColor: UIColor = UIColor.blackColor()
     
     /**
-        If you touch up inside button, it execute handler.
-    */
+     If you touch up inside button, it execute handler.
+     */
     public var handler: ((KCFloatingActionButtonItem) -> Void)? = nil
     
     /**
-        Shape layer of button.
-    */
+     Shape layer of button.
+     */
     private var circleLayer: CAShapeLayer = CAShapeLayer()
     
     /**
-        If you keeping touch inside button, button overlaid with tint layer.
-    */
+     If you keeping touch inside button, button overlaid with tint layer.
+     */
     private var tintLayer: CAShapeLayer = CAShapeLayer()
     
+    public var titleLabelTextInsets = UIEdgeInsetsMake(0, 0, 0, 0)
+    public var titleLabelRightPadding: CGFloat = 10
+    
     /**
-        Item's title label.
-    */
+     Item's title label.
+     */
     var _titleLabel: UILabel? = nil
     public var titleLabel: UILabel {
         get {
@@ -66,20 +69,22 @@ public class KCFloatingActionButtonItem: UIView {
     }
     
     /**
-        Item's title.
-    */
+     Item's title.
+     */
     public var title: String? = nil {
         didSet {
             titleLabel.text = title
             titleLabel.sizeToFit()
-            titleLabel.frame.origin.x = -titleLabel.frame.size.width - 10
+            titleLabel.frame = UIEdgeInsetsInsetRect(titleLabel.frame, titleLabelTextInsets)
+            titleLabel.frame.origin.x = -titleLabel.frame.size.width - titleLabelRightPadding
             titleLabel.frame.origin.y = self.frame.height/2-titleLabel.frame.size.height/2
+            setNeedsDisplay()
         }
     }
     
     /**
-        Item's icon image view.
-    */
+     Item's icon image view.
+     */
     var _iconImageView: UIImageView? = nil
     public var iconImageView: UIImageView {
         get {
@@ -92,8 +97,8 @@ public class KCFloatingActionButtonItem: UIView {
     }
     
     /**
-        Item's icon.
-    */
+     Item's icon.
+     */
     public var icon: UIImage? = nil {
         didSet {
             iconImageView.image = icon
@@ -104,7 +109,7 @@ public class KCFloatingActionButtonItem: UIView {
     // MARK: - Initialize
     
     /**
-        Initialize with default property.
+    Initialize with default property.
     */
     public init() {
         super.init(frame: CGRectMake(0, 0, size, size))
@@ -116,8 +121,8 @@ public class KCFloatingActionButtonItem: UIView {
     }
     
     /**
-        Set size, frame and draw layers.
-    */
+     Set size, frame and draw layers.
+     */
     public override func drawRect(rect: CGRect) {
         super.drawRect(rect)
         
@@ -155,7 +160,7 @@ public class KCFloatingActionButtonItem: UIView {
         circleLayer.shadowOpacity = 0.4
         
         titleLabel.layer.shadowOffset = CGSizeMake(1, 1)
-        titleLabel.layer.shadowRadius = 2
+        titleLabel.layer.shadowRadius = titleLabel.layer.cornerRadius
         titleLabel.layer.shadowColor = titleShadowColor.CGColor
         titleLabel.layer.shadowOpacity = 0.4
     }
@@ -190,9 +195,8 @@ public class KCFloatingActionButtonItem: UIView {
             }
         }
     }
-    
     public override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
-    
+        
         var frameOfText = bounds
         frameOfText.origin.x -= CGRectGetWidth(_titleLabel!.bounds)
         frameOfText.size.width += CGRectGetWidth(_titleLabel!.bounds)
