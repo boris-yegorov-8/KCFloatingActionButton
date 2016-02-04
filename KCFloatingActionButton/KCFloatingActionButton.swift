@@ -435,15 +435,29 @@ public class KCFloatingActionButton: UIView {
     }
     
     private func setObserver() {
+        addKeyboardAndOrientationObserver()
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationDidBecomeActive:", name:UIApplicationDidBecomeActiveNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillResignActive:", name:UIApplicationWillResignActiveNotification, object: nil)
+   
+    }
+    
+    private func addKeyboardAndOrientationObserver() {
+        removeKeyboardAndOrientationObserver()
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "deviceOrientationDidChange:", name: UIDeviceOrientationDidChangeNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name:UIKeyboardWillShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name:UIKeyboardWillHideNotification, object: nil)
+
     }
     
-    deinit {
+    private func removeKeyboardAndOrientationObserver() {
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIDeviceOrientationDidChangeNotification, object: nil)
         NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillHideNotification, object: nil)
+    }
+    
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
     public override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
@@ -544,6 +558,15 @@ public class KCFloatingActionButton: UIView {
             
             }, completion: nil)
     }
+
+    internal func applicationDidBecomeActive(notification: NSNotification) {
+        addKeyboardAndOrientationObserver()
+    }
+    
+    internal func applicationWillResignActive(notification: NSNotification) {
+        removeKeyboardAndOrientationObserver()
+    }
+
 }
 
 extension KCFloatingActionButton {
