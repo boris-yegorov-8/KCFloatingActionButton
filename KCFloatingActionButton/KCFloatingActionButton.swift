@@ -8,181 +8,122 @@
 import UIKit
 
 /**
-    Floating Action Button Object. It has `KCFloatingActionButtonItem` objects.
-    KCFloatingActionButton support storyboard designable.
-*/
+ Floating Action Button Object. It has `KCFloatingActionButtonItem` objects.
+ KCFloatingActionButton support storyboard designable.
+ */
 @IBDesignable
 public class KCFloatingActionButton: UIView {
     // MARK: - Properties
-    
+
     /**
-        `KCFloatingActionButtonItem` objects.
+    `KCFloatingActionButtonItem` objects.
     */
     public var items: [KCFloatingActionButtonItem] = []
-    
+
     /**
-        This object's button size.
-    */
-    public var size: CGFloat = 56 {
+     Button color.
+     */
+    @IBInspectable public var buttonColor: UIColor = UIColor(red: 73/255.0, green: 151/255.0, blue: 241/255.0, alpha: 1) {
         didSet {
-            self.setNeedsDisplay()
+            circleLayer.backgroundColor = buttonColor.CGColor
         }
     }
-    
+
     /**
-        Padding from bottom right of UIScreen or superview.
-    */
-    public var paddingX: CGFloat = 14 {
+     Plus icon color inside button.
+     */
+    @IBInspectable public var plusColor: UIColor = UIColor(white: 0.2, alpha: 1) {
         didSet {
-            self.setNeedsDisplay()
+            plusLayer.strokeColor = plusColor.CGColor
         }
     }
-    public var paddingY: CGFloat = 14 {
+
+    /**
+     Background overlaying color.
+     */
+    @IBInspectable public var overlayColor: UIColor = UIColor.blackColor().colorWithAlphaComponent(0.3) {
         didSet {
-            self.setNeedsDisplay()
+            overlayLayer.backgroundColor = overlayColor.CGColor
         }
     }
-    
+
     /**
-        Button color.
-    */
-    @IBInspectable public var buttonColor: UIColor = UIColor(red: 73/255.0, green: 151/255.0, blue: 241/255.0, alpha: 1)
-    
-    /**
-        Plus icon color inside button.
-    */
-    @IBInspectable public var plusColor: UIColor = UIColor(white: 0.2, alpha: 1)
-    
-    /**
-        Background overlaying color.
-    */
-    @IBInspectable public var overlayColor: UIColor = UIColor.blackColor().colorWithAlphaComponent(0.3)
-    
-    /**
-        The space between the item and item.
-    */
+     The space between the item and item.
+     */
     @IBInspectable public var itemSpace: CGFloat = 14
-    
+
     /**
-        Child item's default size.
-    */
+     Child item's default size.
+     */
     @IBInspectable public var itemSize: CGFloat = 42
-    
+
     /**
-        Child item's default button color.
-    */
+     Child item's default button color.
+     */
     @IBInspectable public var itemButtonColor: UIColor = UIColor.whiteColor()
-    
+
     /**
-        Child item's default shadow color.
-    */
+     Child item's default shadow color.
+     */
     @IBInspectable public var itemShadowColor: UIColor = UIColor.blackColor()
-    
+
     /**
-    
-    */
+
+     */
     public var closed: Bool = true
-    
+
     /**
-        Button shape layer.
-    */
+     Button shape layer.
+     */
     private var circleLayer: CAShapeLayer = CAShapeLayer()
-    
+
     /**
-        Plus icon shape layer.
-    */
+     Plus icon shape layer.
+     */
     private var plusLayer: CAShapeLayer = CAShapeLayer()
-    
+
     /**
-        If you keeping touch inside button, button overlaid with tint layer.
-    */
+     If you keeping touch inside button, button overlaid with tint layer.
+     */
     private var tintLayer: CAShapeLayer = CAShapeLayer()
-    
+
     /**
-        If you show items, background overlaid with overlayColor.
-    */
+     If you show items, background overlaid with overlayColor.
+     */
     private var overlayLayer: CAShapeLayer = CAShapeLayer()
-    
-    /**
-        If you created this object from storyboard or `initWithFrame`, this property set true.
-    */
-    private var isCustomFrame: Bool = false
-    
+
     // MARK: - Initialize
-    
+
     /**
-        Initialize with default property.
-    */
-    public init() {
-        super.init(frame: CGRectMake(0, 0, size, size))
-        backgroundColor = UIColor.clearColor()
-        setObserver()
-    }
-    
-    /**
-        Initialize with custom size.
-    */
-    public init(size: CGFloat) {
-        self.size = size
-        super.init(frame: CGRectMake(0, 0, size, size))
-        backgroundColor = UIColor.clearColor()
-        setObserver()
-    }
-    
-    /**
-        Initialize with custom frame.
+    Initialize with custom frame.
     */
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        size = min(frame.size.width, frame.size.height)
-        backgroundColor = UIColor.clearColor()
-        isCustomFrame = true
-        setObserver()
+        setup()
     }
-    
+
     /**
-        Initialize from storyboard.
-    */
+     Initialize from storyboard.
+     */
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        size = min(frame.size.width, frame.size.height)
+        setup()
+    }
+
+    private func setup() {
         backgroundColor = UIColor.clearColor()
         clipsToBounds = false
-        isCustomFrame = true
-        setObserver()
-    }
-    
-    // MARK: - Method
-    
-    /**
-        Set size and frame.
-    */
-    public override func drawRect(rect: CGRect) {
-        super.drawRect(rect)
-        
         layer.shouldRasterize = true
         layer.rasterizationScale = UIScreen.mainScreen().scale
-        if isCustomFrame == false {
-            setRightBottomFrame()
-        } else {
-            size = min(frame.size.width, frame.size.height)
-        }
-    }
-    
-    /**
-        Draw layers.
-    */
-    public override func drawLayer(layer: CALayer, inContext ctx: CGContext) {
-        super.drawLayer(layer, inContext: ctx)
         setOverlayLayer()
         setCircleLayer()
         setPlusLayer()
         setShadow()
     }
-    
+
     /**
-        Items open.
-    */
+     Items open.
+     */
     public func open() {
         UIView.animateWithDuration(0.3, delay: 0,
             usingSpringWithDamping: 0.55,
@@ -191,14 +132,14 @@ public class KCFloatingActionButton: UIView {
                 self.plusLayer.transform = CATransform3DMakeRotation(self.degreesToRadians(-45), 0.0, 0.0, 1.0)
                 self.overlayLayer.opacity = 1
             }, completion: nil)
-        
+
         var itemHeight: CGFloat = 0
         var delay = 0.0
         for item in items {
             if item.hidden == true { continue }
             itemHeight += item.size
             itemHeight += self.itemSpace
-            item.frame.origin.y = -itemHeight
+            item.frame.origin = CGPointMake(self.bounds.height/2-item.size/2, -itemHeight)
             item.layer.transform = CATransform3DMakeScale(0.4, 0.4, 1)
             UIView.animateWithDuration(0.3, delay: delay,
                 usingSpringWithDamping: 0.55,
@@ -207,15 +148,15 @@ public class KCFloatingActionButton: UIView {
                     item.layer.transform = CATransform3DMakeScale(1, 1, 1)
                     item.alpha = 1
                 }, completion: nil)
-            
+
             delay += 0.1
         }
         closed = false
     }
-    
+
     /**
-        Items close.
-    */
+     Items close.
+     */
     public func close() {
         UIView.animateWithDuration(0.3, delay: 0,
             usingSpringWithDamping: 0.6,
@@ -224,22 +165,22 @@ public class KCFloatingActionButton: UIView {
                 self.plusLayer.transform = CATransform3DMakeRotation(self.degreesToRadians(0), 0.0, 0.0, 1.0)
                 self.overlayLayer.opacity = 0
             }, completion: nil)
-        
+
         var delay = 0.0
         for item in items.reverse() {
             if item.hidden == true { continue }
             UIView.animateWithDuration(0.15, delay: delay, options: [], animations: { () -> Void in
-                    item.layer.transform = CATransform3DMakeScale(0.4, 0.4, 1)
-                    item.alpha = 0
+                item.layer.transform = CATransform3DMakeScale(0.4, 0.4, 1)
+                item.alpha = 0
                 }, completion: nil)
             delay += 0.1
         }
         closed = true
     }
-    
+
     /**
-        Items open or close.
-    */
+     Items open or close.
+     */
     public func toggle() {
         if closed == true {
             open()
@@ -247,20 +188,19 @@ public class KCFloatingActionButton: UIView {
             close()
         }
     }
-    
+
     /**
-        Add custom item
-    */
+     Add custom item
+     */
     public func addItem(item item: KCFloatingActionButtonItem) {
-        item.frame.origin = CGPointMake(size/2-item.size/2, size/2-item.size/2)
         item.alpha = 0
         items.append(item)
         addSubview(item)
     }
-    
+
     /**
-        Add item with title.
-    */
+     Add item with title.
+     */
     public func addItem(title title: String) -> KCFloatingActionButtonItem {
         let item = KCFloatingActionButtonItem()
         itemDefaultSet(item)
@@ -268,10 +208,10 @@ public class KCFloatingActionButton: UIView {
         addItem(item: item)
         return item
     }
-    
+
     /**
-        Add item with title and icon.
-    */
+     Add item with title and icon.
+     */
     public func addItem(title: String, icon: UIImage) -> KCFloatingActionButtonItem {
         let item = KCFloatingActionButtonItem()
         itemDefaultSet(item)
@@ -280,10 +220,10 @@ public class KCFloatingActionButton: UIView {
         addItem(item: item)
         return item
     }
-    
+
     /**
-        Add item with title, icon or handler.
-    */
+     Add item with title, icon or handler.
+     */
     public func addItem(title: String, icon: UIImage, handler: ((KCFloatingActionButtonItem) -> Void)) -> KCFloatingActionButtonItem {
         let item = KCFloatingActionButtonItem()
         itemDefaultSet(item)
@@ -293,10 +233,10 @@ public class KCFloatingActionButton: UIView {
         addItem(item: item)
         return item
     }
-    
+
     /**
-        Add item with icon.
-    */
+     Add item with icon.
+     */
     public func addItem(icon icon: UIImage) -> KCFloatingActionButtonItem {
         let item = KCFloatingActionButtonItem()
         itemDefaultSet(item)
@@ -304,10 +244,10 @@ public class KCFloatingActionButton: UIView {
         addItem(item: item)
         return item
     }
-    
+
     /**
-        Add item with icon and handler.
-    */
+     Add item with icon and handler.
+     */
     public func addItem(icon: UIImage, handler: ((KCFloatingActionButtonItem) -> Void)) -> KCFloatingActionButtonItem {
         let item = KCFloatingActionButtonItem()
         itemDefaultSet(item)
@@ -316,24 +256,24 @@ public class KCFloatingActionButton: UIView {
         addItem(item: item)
         return item
     }
-    
+
     /**
-        Remove item.
-    */
+     Remove item.
+     */
     public func removeItem(item item: KCFloatingActionButtonItem) {
         guard let index = items.indexOf(item) else { return }
         items[index].removeFromSuperview()
         items.removeAtIndex(index)
     }
-    
+
     /**
-        Remove item with index.
-    */
+     Remove item with index.
+     */
     public func removeItem(index index: Int) {
         items[index].removeFromSuperview()
         items.removeAtIndex(index)
     }
-    
+
     public override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
         if closed == false {
             for item in items {
@@ -343,64 +283,58 @@ public class KCFloatingActionButton: UIView {
                     return itemView
                 }
             }
-            
+
             let buttonPoint = self.convertPoint(point, fromView: self)
             if CGRectContainsPoint(self.bounds, buttonPoint) == false {
                 close()
                 return super.hitTest(point, withEvent: event)
             }
         }
-        
+
         return super.hitTest(point, withEvent: event)
     }
-    
-    private func setCircleLayer() {
-        circleLayer.removeFromSuperlayer()
-        circleLayer.frame = CGRectMake(0, 0, size, size)
-        circleLayer.backgroundColor = buttonColor.CGColor
-        circleLayer.cornerRadius = size/2
-        layer.addSublayer(circleLayer)
+
+    override public var bounds: CGRect {
+        didSet {
+
+            let size = min(bounds.size.width, bounds.size.height)
+
+            circleLayer.frame = CGRectMake(0, 0, size, size)
+            circleLayer.cornerRadius = size/2
+
+            plusLayer.frame = CGRectMake(0, 0, size, size)
+            plusLayer.path = plusBezierPath(size).CGPath
+
+            tintLayer.frame = CGRectMake(0, 0, size, size)
+            tintLayer.cornerRadius = size/2
+        }
     }
-    
-    private func setPlusLayer() {
-        plusLayer.removeFromSuperlayer()
-        plusLayer.frame = CGRectMake(0, 0, size, size)
-        plusLayer.lineCap = kCALineCapRound
-        plusLayer.strokeColor = plusColor.CGColor
-        plusLayer.lineWidth = 2.0
-        plusLayer.path = plusBezierPath().CGPath
-        layer.addSublayer(plusLayer)
-    }
-    
-    private func setTintLayer() {
-        tintLayer.frame = CGRectMake(0, 0, size, size)
-        tintLayer.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.2).CGColor
-        tintLayer.cornerRadius = size/2
-        layer.addSublayer(tintLayer)
-    }
-    
-    private func setOverlayLayer() {
-        overlayLayer.removeFromSuperlayer()
-        overlayLayer.frame = CGRectMake(
-            -UIScreen.mainScreen().bounds.width+(UIScreen.mainScreen().bounds.width-frame.origin.x),
-            -UIScreen.mainScreen().bounds.height+(UIScreen.mainScreen().bounds.height-frame.origin.y),
+
+    public override func layoutSubviews() {
+        superview?.layoutSubviews()
+        let point = convertPoint(CGPointZero, fromView: self.window)
+        overlayLayer.frame = CGRectMake(point.x,
+            point.y,
             UIScreen.mainScreen().bounds.width,
             UIScreen.mainScreen().bounds.height
         )
-        overlayLayer.backgroundColor = overlayColor.CGColor
-        overlayLayer.opacity = 0
-        overlayLayer.zPosition = -1
-        layer.addSublayer(overlayLayer)
     }
-    
-    private func setShadow() {
-        layer.shadowOffset = CGSizeMake(1, 1)
-        layer.shadowRadius = 2
-        layer.shadowColor = UIColor.blackColor().CGColor
-        layer.shadowOpacity = 0.4
+
+    private func setCircleLayer() {
+        circleLayer.removeFromSuperlayer()
+        circleLayer.backgroundColor = buttonColor.CGColor
+        layer.addSublayer(circleLayer)
     }
-    
-    private func plusBezierPath() -> UIBezierPath {
+
+    private func setPlusLayer() {
+        plusLayer.removeFromSuperlayer()
+        plusLayer.lineCap = kCALineCapRound
+        plusLayer.strokeColor = plusColor.CGColor
+        plusLayer.lineWidth = 2.0
+        layer.addSublayer(plusLayer)
+    }
+
+    private func plusBezierPath(size: CGFloat) -> UIBezierPath {
         let path = UIBezierPath()
         path.moveToPoint(CGPointMake(size/2, size/3))
         path.addLineToPoint(CGPointMake(size/2, size-size/3))
@@ -408,58 +342,35 @@ public class KCFloatingActionButton: UIView {
         path.addLineToPoint(CGPointMake(size-size/3, size/2))
         return path
     }
-    
+
+
+    private func setTintLayer() {
+        tintLayer.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.2).CGColor
+        layer.addSublayer(tintLayer)
+    }
+
+    private func setOverlayLayer() {
+        overlayLayer.removeFromSuperlayer()
+        overlayLayer.backgroundColor = overlayColor.CGColor
+        overlayLayer.opacity = 0
+        overlayLayer.zPosition = -1
+        layer.addSublayer(overlayLayer)
+    }
+
+    private func setShadow() {
+        layer.shadowOffset = CGSizeMake(1, 1)
+        layer.shadowRadius = 2
+        layer.shadowColor = UIColor.blackColor().CGColor
+        layer.shadowOpacity = 0.4
+    }
+
     private func itemDefaultSet(item: KCFloatingActionButtonItem) {
         item.buttonColor = itemButtonColor
         item.circleShadowColor = itemShadowColor
         item.titleShadowColor = itemShadowColor
         item.size = itemSize
     }
-    
-    private func setRightBottomFrame(keyboardSize: CGFloat = 0) {
-        if superview == nil {
-            frame = CGRectMake(
-                UIScreen.mainScreen().bounds.size.width-size-paddingX,
-                UIScreen.mainScreen().bounds.size.height-size-paddingY-keyboardSize,
-                size,
-                size
-            )
-        } else {
-            frame = CGRectMake(
-                superview!.bounds.size.width-size-paddingX,
-                superview!.bounds.size.height-size-paddingY-keyboardSize,
-                size,
-                size
-            )
-        }
-    }
-    
-    private func setObserver() {
-        addKeyboardAndOrientationObserver()
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationDidBecomeActive:", name:UIApplicationDidBecomeActiveNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillResignActive:", name:UIApplicationWillResignActiveNotification, object: nil)
-   
-    }
-    
-    private func addKeyboardAndOrientationObserver() {
-        removeKeyboardAndOrientationObserver()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "deviceOrientationDidChange:", name: UIDeviceOrientationDidChangeNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name:UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name:UIKeyboardWillHideNotification, object: nil)
 
-    }
-    
-    private func removeKeyboardAndOrientationObserver() {
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIDeviceOrientationDidChangeNotification, object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillHideNotification, object: nil)
-    }
-    
-    deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
-    }
-    
     public override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         super.touchesBegan(touches, withEvent: event)
         if touches.count == 1 {
@@ -470,7 +381,7 @@ public class KCFloatingActionButton: UIView {
             }
         }
     }
-    
+
     public override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
         super.touchesMoved(touches, withEvent: event)
         if touches.count == 1 {
@@ -481,10 +392,10 @@ public class KCFloatingActionButton: UIView {
             }
         }
     }
-    
+
     public override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         super.touchesEnded(touches, withEvent: event)
-        
+
         tintLayer.removeFromSuperlayer()
         if touches.count == 1 {
             let touch = touches.first
@@ -494,79 +405,6 @@ public class KCFloatingActionButton: UIView {
             }
         }
     }
-    
-    public override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
-        if (object as? UIView) == superview && keyPath == "frame" {
-            if isCustomFrame == false {
-                setRightBottomFrame()
-                setOverlayLayer()
-            } else {
-                size = min(frame.size.width, frame.size.height)
-            }
-        }
-    }
-    
-    public override func willMoveToSuperview(newSuperview: UIView?) {
-        superview?.removeObserver(self, forKeyPath: "frame")
-        super.willMoveToSuperview(newSuperview)
-    }
-    
-    public override func didMoveToSuperview() {
-        super.didMoveToSuperview()
-        superview?.addObserver(self, forKeyPath: "frame", options: [], context: nil)
-    }
-    
-    internal func deviceOrientationDidChange(notification: NSNotification) {
-        var keyboardSize: CGFloat = 0.0
-        if let size = notification.userInfo?[UIKeyboardFrameBeginUserInfoKey]?.CGRectValue.size {
-            keyboardSize = size.height
-        }
-        
-        if isCustomFrame == false {
-            setRightBottomFrame(keyboardSize)
-        } else {
-            size = min(frame.size.width, frame.size.height)
-        }
-    }
-    
-    internal func keyboardWillShow(notification: NSNotification) {
-        guard let keyboardSize = notification.userInfo?[UIKeyboardFrameBeginUserInfoKey]?.CGRectValue.size else { return }
-        
-        if isCustomFrame == false {
-            setRightBottomFrame(keyboardSize.height)
-        } else {
-            size = min(frame.size.width, frame.size.height)
-        }
-        
-        UIView.animateWithDuration(0.2, delay: 0, options: UIViewAnimationOptions.TransitionNone, animations: {
-            self.frame = CGRectMake(
-                UIScreen.mainScreen().bounds.width-self.size-self.paddingX,
-                UIScreen.mainScreen().bounds.height-self.size-self.paddingY - keyboardSize.height,
-                self.size,
-                self.size
-            )
-            }, completion: nil)
-    }
-    
-    internal func keyboardWillHide(notification: NSNotification) {
-        UIView.animateWithDuration(0.2, delay: 0, options: UIViewAnimationOptions.TransitionNone, animations: {
-            if self.isCustomFrame == false {
-                self.setRightBottomFrame()
-            } else {
-                self.size = min(self.frame.size.width, self.frame.size.height)
-            }
-            
-            }, completion: nil)
-    }
-
-    internal func applicationDidBecomeActive(notification: NSNotification) {
-        addKeyboardAndOrientationObserver()
-    }
-    
-    internal func applicationWillResignActive(notification: NSNotification) {
-        removeKeyboardAndOrientationObserver()
-    }
-
 }
 
 extension KCFloatingActionButton {
